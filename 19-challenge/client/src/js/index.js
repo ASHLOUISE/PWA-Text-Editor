@@ -10,32 +10,24 @@ const loadSpinner = () => {
   const spinner = document.createElement('div');
   spinner.classList.add('spinner');
   spinner.innerHTML = `
-    <div class="loading-container">
-      <div class="loading-spinner"></div>
-    </div>
+  <div class="loading-container">
+  <div class="loading-spinner" />
+  </div>
   `;
   main.appendChild(spinner);
 };
 
-
-loadSpinner();
-
-// Initialize the editor
 const editor = new Editor();
 
-editor.initialize().then(() => {
-  const spinner = document.querySelector('.spinner');
-  if (spinner) {
-    spinner.remove();
-  }
+if (typeof editor === 'undefined') {
+  loadSpinner();
+}
 
-  // Check if service workers are supported and if the editor is successfully initialized
-  if ('serviceWorker' in navigator) {
-    const workboxSW = new Workbox('/src-sw.js');
-    workboxSW.register();
-  } else {
-    console.error('Service workers are not supported in this browser.');
-  }
-}).catch(error => {
-  console.error('Error initializing editor:', error);
-});
+// Check if service workers are supported
+if ('serviceWorker' in navigator) {
+  // register workbox service worker
+  const workboxSW = new Workbox('/src-sw.js');
+  workboxSW.register();
+} else {
+  console.error('Service workers are not supported in this browser.');
+}
