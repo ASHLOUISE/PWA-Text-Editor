@@ -1,57 +1,36 @@
-import { openDB } from 'idb';
+import { openDB } from "idb";
 
-// Function to initialize the database
 const initdb = async () =>
-  openDB('jate', 1, {
+  openDB("jate", 1, {
     upgrade(db) {
-      if (db.objectStoreNames.contains('jate')) {
-        console.log('jate database already exists');
+      if (db.objectStoreNames.contains("jate")) {
+        console.log("jate database already exists");
         return;
       }
-      db.createObjectStore('jate', { keyPath: 'id', autoIncrement: true });
-      console.log('jate database created');
+      db.createObjectStore("jate", { keyPath: "id", autoIncrement: true });
+      console.log("jate database created");
     },
   });
 
-// Function to add content to the database
+// TODO: Add logic to a method that accepts some content and adds it to the database
 export const putDb = async (content) => {
-  try {
-    // Open the database
-    const db = await initdb();
-    
-    // Get a transaction and object store
-    const tx = db.transaction('jate', 'readwrite');
-    const store = tx.objectStore('jate');
-    
-    // Add the content to the object store
-    await store.add({ content });
-    
-    console.log('Content added to the database:', content);
-  } catch (error) {
-    console.error('Error adding content to the database:', error);
-  }
+  const jateDB = await openDB("jate", 1);
+  const tx = jateDB.transaction("jate", "readwrite");
+  const store = tx.objectStore("jate");
+  const request = store.put({ id: 1, value: content });
+  const result = await request;
+  console.log("🚀 - data saved to the database", result);
 };
 
-// Function to get all content from the database
+// TODO: Add logic for a method that gets all the content from the database
 export const getDb = async () => {
-  try {
-    // Open the database
-    const db = await initdb();
-    
-    // Get a transaction and object store
-    const tx = db.transaction('jate', 'readonly');
-    const store = tx.objectStore('jate');
-    
-    // Get all content from the object store
-    const allContent = await store.getAll();
-    
-    return allContent.map(item => item.content);
-  } catch (error) {
-    console.error('Error getting content from the database:', error);
-    return [];
-  }
+  const jateDB = await openDB("jate", 1);
+  const tx = jateDB.transaction("jate", "readonly");
+  const store = tx.objectStore("jate");
+  const request = store.getAll();
+  const result = await request;
+  console.log("🚀 - data read from database", result);
+  return result.value;
 };
-
 
 initdb();
-
