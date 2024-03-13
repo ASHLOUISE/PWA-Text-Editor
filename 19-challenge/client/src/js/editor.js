@@ -1,3 +1,4 @@
+// Import methods to save and get data from the indexedDB database in './database.js'
 import { getDb, putDb } from './database';
 import { header } from './header';
 
@@ -23,28 +24,19 @@ export default class {
 
     // When the editor is ready, set the value to whatever is stored in indexeddb.
     // Fall back to localStorage if nothing is stored in indexeddb, and if neither is available, set the value to header.
-    getDb()
-      .then((data) => {
-        console.info('Loaded data from IndexedDB, injecting into editor');
-        this.editor.setValue(data || localData || header);
-      })
-      .catch((error) => {
-        console.error('Error loading data from IndexedDB:', error);
-        this.editor.setValue(localData || header);
-      });
+    getDb().then((data) => {
+      console.info('Loaded data from IndexedDB, injecting into editor');
+      this.editor.setValue(data || localData || header);
+    });
 
-    // Save the content of the editor when the editor itself loses focus
+    this.editor.on('change', () => {
+      localStorage.setItem('content', this.editor.getValue());
+    });
+
+    // Save the content of the editor when the editor itself is loses focus
     this.editor.on('blur', () => {
       console.log('The editor has lost focus');
-      const content = this.editor.getValue();
-      putDb(content)
-        .then(() => {
-          console.log('Content saved to IndexedDB');
-        })
-        .catch((error) => {
-          console.error('Error saving content to IndexedDB:', error);
-        });
+      putDb(localStorage.getItem('content'));
     });
   }
 }
-
